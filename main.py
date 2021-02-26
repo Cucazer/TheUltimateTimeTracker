@@ -1,23 +1,26 @@
 categories = []
+tasks = []
+active_task = ""
 
 if __name__ == "__main__":
     while True:
         ans = input("Would you like to (c)reate new task or (s)witch to another task? ")
         if ans == "c" or ans == "create":
             # category (subcategory)
-            i = 0
-            for i in range (len(categories)):
-                print(f"{i} - {categories[i]}")
-            print(f"{i+1} - New category")
+            print(f"0 - New category")
+            for i in range(1, len(categories)+1):
+                print(f"{i} - {categories[i-1]}")
             ans = int(input())
-            if ans < len(categories):
-                pass
-            elif ans == len(categories):
-                ans = input("New category name: ")
+            if ans == 0:
+                category = input("New category name: ")
+                categories.append(category)
             else:
-                print("Invalid input")
+                category = categories[ans-1]
+            
             # task name
-            pass
+            task = input("New task name: ")
+            tasks.append(task)
+
         elif ans == "s" or ans == "switch":
             # print categories (and subcategories)
             # print tasks
