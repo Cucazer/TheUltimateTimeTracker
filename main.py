@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import os
+import sys
 import csv
 import random
 import datetime
@@ -44,7 +45,7 @@ if __name__ == "__main__":
 
     while True:
         print(f"\nCurrent task: {active_task}")
-        ans = input("Would you like to (c)reate new task or (s)witch to another task? ")
+        ans = input("Would you like to (c)reate new task or (s)witch to another task or (g)enerate plot or e(x)it? ")
         if ans == "c" or ans == "create":
             # category (subcategory)
             print(f"0 - New category")
@@ -93,5 +94,28 @@ if __name__ == "__main__":
                     csv_writer.writerow(time_entry)                
 
             active_task = task
+        elif ans == "g" or ans == "generate":
+            import matplotlib.pyplot as plt
+            import numpy as np
+
+            plt.rcdefaults()
+            fig, ax = plt.subplots()
+
+            # Example data
+            y_pos = np.arange(len(tasks))
+            performance = [sum([y.get_duration() for y in time_entries if y.task_id == x.id], datetime.timedelta()) for x in tasks]
+
+            ax.barh(y_pos, [x.seconds for x in performance], align='center', color='green')
+            #ax.yaxis_date()
+            #ax.yaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
+            ax.set_yticks(y_pos)
+            ax.set_yticklabels([x.name for x in tasks])
+            ax.invert_yaxis()  # labels read top-to-bottom
+            ax.set_xlabel('Time (s)')
+            ax.set_title('How much time did you spend on tasks?')
+
+            plt.show()
+        elif ans == "x" or ans == "exit":
+            sys.exit(0)
         else:
             print("Invalid input")
