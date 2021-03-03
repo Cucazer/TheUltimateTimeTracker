@@ -6,6 +6,7 @@ import random
 import datetime
 #import dateutil
 import sqlite3
+from sqlalchemy import create_engine
 
 import category as c
 import task as t
@@ -14,6 +15,9 @@ import time_entry as te
 if __name__ == "__main__":
     conn = sqlite3.connect("data/test.db")
     cur = conn.cursor()
+
+    engine = create_engine("sqlite:///data/test.db", echo=True)
+    c.Base.metadata.create_all(engine)
 
     # initialize categories and tasks
     categories = []
