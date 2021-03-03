@@ -5,12 +5,16 @@ import csv
 import random
 import datetime
 #import dateutil
+import sqlite3
 
 import category as c
 import task as t
 import time_entry as te
 
 if __name__ == "__main__":
+    conn = sqlite3.connect("data/test.db")
+    cur = conn.cursor()
+
     # initialize categories and tasks
     categories = []
     categories_csv = "data/categories.csv"
@@ -55,6 +59,9 @@ if __name__ == "__main__":
             if ans == 0:
                 name = input("New category name: ")
                 category = c.Category(random.randint(0, 1000), name)
+
+                cur.execute("INSERT INTO category (name) VALUES (?)", [name])
+
                 with open(categories_csv, "a") as file:
                     csv_writer = csv.writer(file)
                     csv_writer.writerow(category)
@@ -65,20 +72,36 @@ if __name__ == "__main__":
             # task name
             name = input("New task name: ")
             task = t.Task(random.randint(0, 1000), category.id, name)
+
+            cur.execute("INSERT INTO task (category_id, name) VALUES (last_insert_rowid(),?)", [name])
+
             with open(tasks_csv, "a") as file:
                     csv_writer = csv.writer(file)
                     csv_writer.writerow(task)
             tasks.append(task)
 
+            conn.commit()
+
         elif ans == "s" or ans == "switch":
             # print categories (and subcategories)
             print("Pick a category:")
+
+            cur.execute("SELECT * FROM category")
+            for (id, name) in cur.fetchall():
+                print(f"{id} - {name}")
+
             for i in range(len(categories)):
                 print(f"{i} - {categories[i]}")
-            category = categories[int(input())]
+            category_id = int(input())
+            category = categories[category_id]
 
             # print tasks
             print("Pick a task:")
+
+            cur.execute("SELECT id, name FROM task WHERE category_id = ?", [category_id])
+            for (id, name) in cur.fetchall():
+                print(f"{id} - {name}")
+
             category_tasks = [x for x in tasks if x.category_id == category.id]
             for i in range(len(category_tasks)):
                 print(f"{i} - {category_tasks[i]}")
@@ -116,6 +139,7 @@ if __name__ == "__main__":
 
             plt.show()
         elif ans == "x" or ans == "exit":
+            conn.close()
             sys.exit(0)
         else:
             print("Invalid input")
