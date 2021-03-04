@@ -1,7 +1,6 @@
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String
-
-Base = declarative_base()
+from sqlalchemy.orm import relationship
+from base import Base
 
 class Category(Base):
     __tablename__ = "categories"
@@ -9,10 +8,9 @@ class Category(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
 
+    tasks = relationship("Task", back_populates="category")
+
     """docstring for Category."""
-    def __init__(self, id, name):
-        self.id = id
-        self.name = name
         
     def __iter__(self):
         return iter([self.id, self.name])
