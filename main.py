@@ -5,7 +5,6 @@ import csv
 import random
 import datetime
 #import dateutil
-import sqlite3
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -16,28 +15,11 @@ import task as t
 import time_entry as te
 
 if __name__ == "__main__":
-    conn = sqlite3.connect("data/test.db")
-    cur = conn.cursor()
-
     engine = create_engine("sqlite:///data/test.db", echo=True)
     Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
     session = Session()
 
-    # initialize categories and tasks
-    categories = []
-    categories_csv = "data/categories.csv"
-
-    tasks = []
-    tasks_csv = "data/tasks.csv"
-
-    time_entries = []
-    time_entries_csv = "data/time_entries.csv"
-
-    # if time_entries:
-    #     active_task = next(iter([x for x in tasks if x.id == time_entries[-1].task_id]), t.Task(0,0,"test"))
-    # else:
-    #     active_task = t.Task(0,0,"test")
     try:
         active_task = session.query(te.TimeEntry).filter(te.TimeEntry.end_time == None).one().task
     except:
@@ -95,6 +77,8 @@ if __name__ == "__main__":
 
             active_task = task
         elif ans == "g" or ans == "generate":
+            tasks = session.query(t.Task).all()
+
             import matplotlib.pyplot as plt
             import numpy as np
 
@@ -103,7 +87,7 @@ if __name__ == "__main__":
 
             # Example data
             y_pos = np.arange(len(tasks))
-            performance = [sum([y.get_duration() for y in time_entries if y.task_id == x.id], datetime.timedelta()) for x in tasks]
+            performance = [sum([y.get_duration() for y in x.time_entries], datetime.timedelta()) for x in tasks]
 
             ax.barh(y_pos, [x.seconds for x in performance], align='center', color='green')
             #ax.yaxis_date()
@@ -116,7 +100,7 @@ if __name__ == "__main__":
 
             plt.show()
         elif ans == "x" or ans == "exit":
-            conn.close()
+            session.close()
             sys.exit(0)
         else:
             print("Invalid input")
