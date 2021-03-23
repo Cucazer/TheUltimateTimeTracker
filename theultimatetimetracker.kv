@@ -1,0 +1,48 @@
+#:kivy 1.0.9
+
+<ChoiceWheel>:
+    GridLayout:
+        size: root.size # set the size manually
+        pos: root.pos
+        cols: 3
+        rows: 5
+        Label:
+        Button:
+            text: "C1/T1"
+        Label:
+        Button:
+            text: "C2/T2"
+        Label:
+        Button:
+            text: "C3/T3"
+        Label:
+        TextInput:
+        Label:
+        Button:
+            text: "C4/T4"
+        Label:
+        Button:
+            text: "C5/T5"
+        Label:
+        Button:
+            text: "More"
+        Label:
+
+<MainForm>:
+    GridLayout:
+        size: root.size # set the size manually
+        cols: 3
+        rows: 3
+        BoxLayout:
+            orientation: "vertical"
+            Button:
+                text: "New task"
+            Button:
+                text: "Generate plot"
+        Label:
+        Label:
+            text: "Current task"
+        Label:
+        ChoiceWheel:
+        Label:
+            text: "Task stats?"
