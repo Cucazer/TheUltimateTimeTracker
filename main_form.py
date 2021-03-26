@@ -9,19 +9,15 @@ from sqlalchemy.orm import sessionmaker
 
 from enum import Enum, auto
 
-from base import Base
-
-import category as c
-import task as t
-import time_entry as te
+import models as m
 
 engine = create_engine("sqlite:///data/test.db", echo=True)
-Base.metadata.create_all(engine)
+m.Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 session = Session()
 
 try:
-    active_task = session.query(te.TimeEntry).filter(te.TimeEntry.end_time == None).one().task
+    active_task = session.query(m.TimeEntry).filter(m.TimeEntry.end_time == None).one().task
 except:
     active_task = "none"
 
@@ -38,7 +34,7 @@ class ChoiceWheel(Widget):
     def init_ui(self, dt=0):
         self.choice_buttons = [self.ids.button0, self.ids.button1, self.ids.button2, self.ids.button3, self.ids.button4]
         self.mode = self.Mode.Categories
-        self.update_choice_buttons(session.query(c.Category).all())
+        self.update_choice_buttons(session.query(m.Category).all())
 
     def update_choice_buttons(self, names):
         for i in range(min(len(names), len(self.choice_buttons))):
@@ -52,7 +48,7 @@ class ChoiceWheel(Widget):
 
     def on_button_click(self, button):
         if self.mode == self.Mode.Categories:
-            category = session.query(c.Category).filter(c.Category.name == button.text).first()
+            category = session.query(m.Category).filter(m.Category.name == button.text).first()
             self.update_choice_buttons(category.tasks)
             self.mode = self.Mode.Tasks
 
@@ -86,46 +82,13 @@ class MainForm(Widget):
 
         cw = self.ids.choice_wheel
         cw.mode = cw.Mode.Categories
-        cw.update_choice_buttons(session.query(c.Category).all())
+        cw.update_choice_buttons(session.query(m.Category).all())
 
     def generate_plot(self):
-        tasks = session.query(t.Task).all()
+        tasks = session.query(m.Task).all()
 
-        import matplotlib.pyplot as plt
-        import numpy as np
-        from matplotlib.ticker import FuncFormatter
-        import matplotlib.ticker as ticker
-
-        def format_func(x, pos):
-            hours = int(x//3600)
-            minutes = int((x%3600)//60)
-            seconds = int(x%60)
-
-            return "{:d}:{:02d}".format(hours, minutes)
-            # return "{:d}:{:02d}:{:02d}".format(hours, minutes, seconds)
-
-
-        plt.rcdefaults()
-        fig, ax = plt.subplots()
-
-        # Example data
-        y_pos = np.arange(len(tasks))
-        performance = [sum([y.get_duration() for y in x.time_entries], datetime.timedelta()) for x in tasks]
-
-        formatter = FuncFormatter(format_func)
-        ax.barh(y_pos, [x.seconds for x in performance], align='center', color='green')
-        ax.xaxis.set_major_formatter(formatter)
-        # this locates y-ticks at the hours
-        #ax.xaxis.set_major_locator(ticker.MultipleLocator(base=3600))
-        # this ensures each bar has a 'date' label
-        #ax.yaxis.set_major_locator(ticker.MultipleLocator(base=1))
-        ax.set_yticks(y_pos)
-        ax.set_yticklabels([x.name for x in tasks])
-        ax.invert_yaxis()  # labels read top-to-bottom
-        ax.set_xlabel('Time')
-        ax.set_title('How much time did you spend on tasks?')
-
-        plt.show()
+        import plotter
+        plotter.generate_basic_plot(tasks)
 
 class TheUltimateTimeTrackerApp(App):
     def build(self):

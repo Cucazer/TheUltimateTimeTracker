@@ -8,20 +8,16 @@ import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from base import Base
-
-import category as c
-import task as t
-import time_entry as te
+import models as m
 
 if __name__ == "__main__":
     engine = create_engine("sqlite:///data/test.db", echo=True)
-    Base.metadata.create_all(engine)
+    m.Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
     session = Session()
 
     try:
-        active_task = session.query(te.TimeEntry).filter(te.TimeEntry.end_time == None).one().task
+        active_task = session.query(m.TimeEntry).filter(m.TimeEntry.end_time == None).one().task
     except:
         active_task = "none"
 
@@ -33,20 +29,20 @@ if __name__ == "__main__":
         if ans == "c" or ans == "create":
             # category (subcategory)
             print(f"0 - New category")
-            categories = session.query(c.Category).all()
+            categories = session.query(m.Category).all()
             for i in range(1, len(categories)+1):
                 print(f"{i} - {categories[i-1]}")
             ans = int(input())
             if ans == 0:
                 name = input("New category name: ")
-                category = c.Category(name = name)
+                category = m.Category(name = name)
                 session.add(category)
             else:
                 category = categories[ans-1]
             
             # task name
             name = input("New task name: ")
-            category.tasks.append(t.Task(name = name))
+            category.tasks.append(m.Task(name = name))
             
             session.commit()
 
@@ -54,7 +50,7 @@ if __name__ == "__main__":
             # print categories (and subcategories)
             print("Pick a category:")
 
-            categories = session.query(c.Category).all()
+            categories = session.query(m.Category).all()
             for i in range(len(categories)):
                 print(f"{i} - {categories[i]}")
             category = categories[int(input())]
@@ -68,52 +64,19 @@ if __name__ == "__main__":
 
             # create time entry
             try:
-                unfinished_time_entry = session.query(te.TimeEntry).filter(te.TimeEntry.end_time == None).one()
+                unfinished_time_entry = session.query(m.TimeEntry).filter(m.TimeEntry.end_time == None).one()
                 unfinished_time_entry.end_time = datetime.datetime.now()
             except:
                 pass
-            session.add(te.TimeEntry(task = task, start_time = datetime.datetime.now()))   
+            session.add(m.TimeEntry(task = task, start_time = datetime.datetime.now()))   
             session.commit()          
 
             active_task = task
         elif ans == "g" or ans == "generate":
-            tasks = session.query(t.Task).all()
+            tasks = session.query(m.Task).all()
 
-            import matplotlib.pyplot as plt
-            import numpy as np
-            from matplotlib.ticker import FuncFormatter
-            import matplotlib.ticker as ticker
-
-            def format_func(x, pos):
-                hours = int(x//3600)
-                minutes = int((x%3600)//60)
-                seconds = int(x%60)
-
-                return "{:d}:{:02d}".format(hours, minutes)
-                # return "{:d}:{:02d}:{:02d}".format(hours, minutes, seconds)
-
-
-            plt.rcdefaults()
-            fig, ax = plt.subplots()
-
-            # Example data
-            y_pos = np.arange(len(tasks))
-            performance = [sum([y.get_duration() for y in x.time_entries], datetime.timedelta()) for x in tasks]
-
-            formatter = FuncFormatter(format_func)
-            ax.barh(y_pos, [x.seconds for x in performance], align='center', color='green')
-            ax.xaxis.set_major_formatter(formatter)
-            # this locates y-ticks at the hours
-            #ax.xaxis.set_major_locator(ticker.MultipleLocator(base=3600))
-            # this ensures each bar has a 'date' label
-            #ax.yaxis.set_major_locator(ticker.MultipleLocator(base=1))
-            ax.set_yticks(y_pos)
-            ax.set_yticklabels([x.name for x in tasks])
-            ax.invert_yaxis()  # labels read top-to-bottom
-            ax.set_xlabel('Time')
-            ax.set_title('How much time did you spend on tasks?')
-
-            plt.show()
+            import plotter
+            plotter.generate_basic_plot(tasks)
         elif ans == "x" or ans == "exit":
             session.close()
             sys.exit(0)

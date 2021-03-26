@@ -1,7 +1,7 @@
 import datetime
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
-from base import Base
+from .base import Base
 
 class TimeEntry(Base):
     """docstring for TimeEntry."""
