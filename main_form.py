@@ -45,15 +45,16 @@ class ChoiceWheel(Widget):
         self.items = self.ItemType.Categories
         self.update_choice_buttons(session.query(m.Category).all())
 
-    def update_choice_buttons(self, names, disable = False):
-        for i in range(min(len(names), len(self.choice_buttons))):
+    def update_choice_buttons(self, names, disable = False, page = 0):
+        choice_count = len(self.choice_buttons)
+        for i in range(min(len(names) - page * choice_count, choice_count)):
             self.choice_buttons[i].text = names[i].name
             self.choice_buttons[i].disabled = disable
-        for i in range(len(names), len(self.choice_buttons)):
+        for i in range(len(names), choice_count):
             self.choice_buttons[i].text = ""
             self.choice_buttons[i].disabled = True
-        if len(names) < len(self.choice_buttons):
-            self.ids.more.disabled = True
+
+        self.ids.more.disabled = len(names) < choice_count
 
     def update_task_edit(self, text = None):
         task_name_edit = self.ids.task_name
@@ -69,6 +70,7 @@ class ChoiceWheel(Widget):
     def on_button_click(self, button):
         if self.items == self.ItemType.Categories:
             self.category = session.query(m.Category).filter(m.Category.name == button.text).first()
+
             self.items = self.ItemType.Tasks
             self.update_choice_buttons(self.category.tasks, self.mode == self.Mode.Create)
 
@@ -76,6 +78,7 @@ class ChoiceWheel(Widget):
                 self.update_task_edit("New task...")
         elif self.items == self.ItemType.Tasks:
             self.task = next(x for x in self.category.tasks if x.name == button.text)
+            
             self.update_choice_buttons(session.query(m.Category).all())
             self.items = self.ItemType.Categories
             self.mode = self.Mode.Switch
@@ -88,6 +91,7 @@ class ChoiceWheel(Widget):
     def on_input_submit(self, input):
         if self.items == self.ItemType.Categories:
             self.category = m.Category(name=input.text)
+
             self.update_choice_buttons(self.category.tasks, self.mode == self.Mode.Create)
             self.items = self.ItemType.Tasks
 
@@ -95,7 +99,10 @@ class ChoiceWheel(Widget):
                 self.update_task_edit("New task...")
         elif self.items == self.ItemType.Tasks:
             self.task = m.Task(name=input.text)
-            #self.category.tasks.append(self.task)
+            self.category.tasks.append(self.task)
+            session.add(self.category)
+            session.commit()
+
             self.update_choice_buttons(session.query(m.Category).all())
             self.items = self.ItemType.Categories
             self.mode = self.Mode.Switch
@@ -114,6 +121,7 @@ class MainForm(Widget):
         Clock.schedule_once(self.init_ui, 0)
     
     def init_ui(self, dt=0):
+        self.ids.choice_wheel.bind(task = self.on_task_changed)
         self.ids.current_task.text = f"Current task: {str(active_task)}"
 
     def create_new_task(self):
@@ -127,6 +135,20 @@ class MainForm(Widget):
         cw.mode = cw.Mode.Create
         cw.items = cw.ItemType.Categories
         cw.update_choice_buttons(session.query(m.Category).all())
+
+    def on_task_changed(self, instance, value):
+        if self.ids.choice_wheel.mode == self.ids.choice_wheel.Mode.Switch:
+            active_task = value
+            self.ids.current_task.text = f"Current task: {str(active_task)}"
+
+            # create time entry
+            try:
+                unfinished_time_entry = session.query(m.TimeEntry).filter(m.TimeEntry.end_time == None).one()
+                unfinished_time_entry.end_time = datetime.datetime.now()
+            except:
+                pass
+            session.add(m.TimeEntry(task = value, start_time = datetime.datetime.now()))   
+            session.commit()  
 
     def generate_plot(self):
         tasks = session.query(m.Task).all()
