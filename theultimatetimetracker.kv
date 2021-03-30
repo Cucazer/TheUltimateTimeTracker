@@ -23,6 +23,7 @@
             text: "C3/T3"
         Label:
         TextInput:
+            on_text_validate: root.on_input_submit(self)
             id: task_name
             multiline: False
             disabled: True
