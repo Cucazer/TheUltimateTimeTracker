@@ -46,15 +46,18 @@ class ChoiceWheel(Widget):
         self.update_choice_buttons(session.query(m.Category).all())
 
     def update_choice_buttons(self, names, disable = False, page = 0):
+        self.button_names = names
+        self.page = page
         choice_count = len(self.choice_buttons)
-        for i in range(min(len(names) - page * choice_count, choice_count)):
-            self.choice_buttons[i].text = names[i].name
+        name_count = len(names) - page * choice_count
+        for i in range(min(name_count, choice_count)):
+            self.choice_buttons[i].text = names[i + page * choice_count].name
             self.choice_buttons[i].disabled = disable
-        for i in range(len(names), choice_count):
+        for i in range(name_count, choice_count):
             self.choice_buttons[i].text = ""
             self.choice_buttons[i].disabled = True
 
-        self.ids.more.disabled = len(names) < choice_count
+        self.ids.more.disabled = name_count <= choice_count
 
     def update_task_edit(self, text = None):
         task_name_edit = self.ids.task_name
@@ -113,7 +116,7 @@ class ChoiceWheel(Widget):
             pass
 
     def on_more_button_click(self):
-        pass
+        self.update_choice_buttons(self.button_names, page = self.page + 1)
 
 class MainForm(Widget):
     def __init__(self, *args, **kwargs):
