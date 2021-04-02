@@ -57,7 +57,14 @@ class ChoiceWheel(Widget):
             self.choice_buttons[i].text = ""
             self.choice_buttons[i].disabled = True
 
-        self.ids.more.disabled = name_count <= choice_count
+        if len(names) > choice_count:
+            self.ids.more.disabled = False
+            if name_count < choice_count:
+                self.ids.more.text = "Return"
+            else:
+                self.ids.more.text = "More"
+        else:
+            self.ids.more.disabled = name_count <= choice_count
 
     def update_task_edit(self, text = None):
         task_name_edit = self.ids.task_name
@@ -116,7 +123,10 @@ class ChoiceWheel(Widget):
             pass
 
     def on_more_button_click(self):
-        self.update_choice_buttons(self.button_names, page = self.page + 1)
+        if (self.page + 1) * len(self.choice_buttons) < len(self.button_names):
+            self.update_choice_buttons(self.button_names, page = self.page + 1)
+        else:
+            self.update_choice_buttons(self.button_names, page = 0)
 
 class MainForm(Widget):
     def __init__(self, *args, **kwargs):
