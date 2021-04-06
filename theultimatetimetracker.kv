@@ -7,38 +7,39 @@
         cols: 3
         rows: 5
         Label:
-        Button:
+        MDRaisedButton:
             on_release: root.on_button_click(self)
             id: button0
             text: "C1/T1"
         Label:
-        Button:
+        MDRaisedButton:
             on_release: root.on_button_click(self)
             id: button1
             text: "C2/T2"
         Label:
-        Button:
+        MDRaisedButton:
             on_release: root.on_button_click(self)
             id: button2
             text: "C3/T3"
         Label:
-        TextInput:
+        MDTextField:
+            mode: "rectangle"
             on_text_validate: root.on_input_submit(self)
             id: task_name
             multiline: False
             disabled: True
         Label:
-        Button:
+        MDRaisedButton:
             on_release: root.on_button_click(self)
             id: button3
             text: "C4/T4"
         Label:
-        Button:
+        MDRaisedButton:
             on_release: root.on_button_click(self)
             id: button4
             text: "C5/T5"
         Label:
-        Button:
+        MDRaisedButton:
             on_release: root.on_more_button_click()
             id: more
             text: "More"
@@ -53,16 +54,16 @@
             size_hint: (1, None)
             height: 100
             orientation: "vertical"
-            Button:
+            MDRaisedButton:
                 on_release: root.create_new_task()
                 text: "New task"
-            Button:
+            MDRaisedButton:
                 on_release: root.generate_plot()
                 text: "Generate plot"
         Label:
             size_hint: (None, None)
             height: 100
-        Label:
+        MDLabel:
             id: current_task
             size_hint: (None, None)
             height: 100

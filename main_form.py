@@ -3,6 +3,8 @@ from kivy.uix.widget import Widget
 from kivy.clock import Clock
 from kivy.properties import ObjectProperty
 
+from kivymd.app import MDApp
+
 import datetime
 
 from sqlalchemy import create_engine
@@ -165,11 +167,12 @@ class MainForm(Widget):
 
     def generate_plot(self):
         tasks = session.query(m.Task).all()
-
+        
+        #TODO separate thread?
         import plotter
         plotter.generate_basic_plot(tasks)
 
-class TheUltimateTimeTrackerApp(App):
+class TheUltimateTimeTrackerApp(MDApp):
     def build(self):
         return MainForm()
 
