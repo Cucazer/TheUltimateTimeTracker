@@ -68,8 +68,46 @@
             size_hint: (None, None)
             height: 100
             text: "Current task"
-        Label:
+        MDGridLayout:
+            cols: 1
+            rows: 4
+            height: self.minimum_height
+            #orientation: "vertical"
+            #adaptive_height: True
+
+            MDLabel:
+                halign: "center"
+                height: 50
+                size_hint: (1, None)
+                text: "Create time entry:"
+            MDBoxLayout:
+                orientation: "horizontal"
+                height: 50
+                size_hint: (1, None)
+
+                MDLabel:
+                    text: "Start time:"
+                MDTextField:
+                    mode: "rectangle"
+            MDBoxLayout:
+                orientation: "horizontal"
+                height: 50
+                size_hint: (1, None)
+
+                MDLabel:
+                    text: "End time:"
+                MDTextField:
+                    mode: "rectangle"
+            MDRaisedButton:
+                height: 50
+                size_hint: (1, None)
+                text: "Choose task"
         ChoiceWheel:
             id: choice_wheel
-        Label:
-            text: "Task stats?"
+        MDLabel:
+            text: "Task property table"
+        # causes https://github.com/kivymd/KivyMD/issues/596
+        # wait for the next release or manage versions
+        # MDDataTable:
+        #     column_data: [("Property",), ("Value",)]
+        #     orientation: "lr-tb"
