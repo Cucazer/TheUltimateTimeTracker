@@ -69,6 +69,7 @@
             height: 100
             text: "Current task"
         MDGridLayout:
+            id: enter_time
             cols: 1
             rows: 4
             height: self.minimum_height
@@ -88,7 +89,9 @@
                 MDLabel:
                     text: "Start time:"
                 MDTextField:
+                    id: start_time
                     mode: "rectangle"
+                    on_touch_up:root.show_date_picker(args[1])
             MDBoxLayout:
                 orientation: "horizontal"
                 height: 50
@@ -97,11 +100,16 @@
                 MDLabel:
                     text: "End time:"
                 MDTextField:
+                    id: end_time
                     mode: "rectangle"
+                    on_touch_up:root.show_date_picker(args[1])
             MDRaisedButton:
+                id: select_task
+                disabled: True
                 height: 50
                 size_hint: (1, None)
-                text: "Choose task"
+                text: "Select task"
+                on_release: root.select_task()
         ChoiceWheel:
             id: choice_wheel
         MDLabel:
