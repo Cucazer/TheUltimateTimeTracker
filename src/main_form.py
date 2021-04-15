@@ -17,7 +17,8 @@ from enum import Enum, auto
 
 import models as m
 
-engine = create_engine("sqlite:///data/test.db", echo=True)
+data_dir = "../data"
+engine = create_engine(f"sqlite:///{data_dir}/test.db", echo=True)
 m.Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 session = Session()

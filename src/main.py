@@ -11,7 +11,8 @@ from sqlalchemy.orm import sessionmaker
 import models as m
 
 if __name__ == "__main__":
-    engine = create_engine("sqlite:///data/test.db", echo=True)
+    data_dir = "../data"
+    engine = create_engine(f"sqlite:///{data_dir}/test.db", echo=True)
     m.Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
     session = Session()
