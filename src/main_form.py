@@ -1,3 +1,6 @@
+import sys
+import os
+
 from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.clock import Clock
@@ -12,13 +15,16 @@ import datetime
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
 from enum import Enum, auto
 
 import models as m
 
-data_dir = "../data"
-engine = create_engine(f"sqlite:///{data_dir}/test.db", echo=True)
+import config
+
+db_file_path = os.path.join(config.ROOT_DIR, "testdata", "example.db")
+if len(sys.argv) > 1:
+    db_file_path = sys.argv[1]
+engine = create_engine(f"sqlite:///{db_file_path}", echo=True)
 m.Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
 session = Session()
@@ -58,7 +64,7 @@ class ChoiceWheel(Widget):
         choice_count = len(self.choice_buttons)
         name_count = len(names) - page * choice_count
         for i in range(min(name_count, choice_count)):
-            self.choice_buttons[i].text = names[i + page * choice_count].name
+            self.choice_buttons[i].text = names[i + page * choice_count].name.replace(' ', "\n")
             self.choice_buttons[i].disabled = disable
         for i in range(name_count, choice_count):
             self.choice_buttons[i].text = ""
@@ -86,7 +92,7 @@ class ChoiceWheel(Widget):
 
     def on_button_click(self, button):
         if self.items == self.ItemType.Categories:
-            self.category = session.query(m.Category).filter(m.Category.name == button.text).first()
+            self.category = session.query(m.Category).filter(m.Category.name == button.text.replace("\n", " ")).first()
 
             self.items = self.ItemType.Tasks
             self.update_choice_buttons(self.category.tasks, self.mode == self.Mode.Create)
@@ -94,7 +100,7 @@ class ChoiceWheel(Widget):
             if self.mode == self.Mode.Create:
                 self.update_task_edit("New task...")
         elif self.items == self.ItemType.Tasks:
-            self.task = next(x for x in self.category.tasks if x.name == button.text)
+            self.task = next(x for x in self.category.tasks if x.name == button.text.replace("\n", " "))
             
             self.update_choice_buttons(session.query(m.Category).all())
             self.items = self.ItemType.Categories
@@ -184,6 +190,9 @@ class MainForm(Widget):
             Snackbar(text=f"Activity {task.name} ({task.category.name}) from {start_time} to {end_time} successfully recorded!").show() # change to open() after update
             for widget in [self.ids.start_time, self.ids.end_time]:
                 widget.disabled = False
+            self.start_date = end_time.date()
+            self.start_time = end_time.time()
+            self.ids.start_time.text = f"{str(self.start_date)} {str(self.start_time)}"
 
     def generate_plot(self):
         tasks = session.query(m.Task).all()

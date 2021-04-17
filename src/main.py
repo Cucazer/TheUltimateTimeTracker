@@ -7,12 +7,15 @@ import datetime
 #import dateutil
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+import config
 
 import models as m
 
 if __name__ == "__main__":
-    data_dir = "../data"
-    engine = create_engine(f"sqlite:///{data_dir}/test.db", echo=True)
+    db_file_path = os.path.join(config.ROOT_DIR, "testdata", "example.db")
+    if len(sys.argv) > 1:
+        db_file_path = sys.argv[1]
+    engine = create_engine(f"sqlite:///{db_file_path}", echo=True)
     m.Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
     session = Session()
