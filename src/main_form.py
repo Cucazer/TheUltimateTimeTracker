@@ -142,19 +142,43 @@ class ChoiceWheel(Widget):
             self.update_choice_buttons(self.button_names, page = 0)
 
 class MainForm(Widget):
+    start_date = ObjectProperty()
+    start_time = ObjectProperty()
+    end_date = ObjectProperty()
+    end_time = ObjectProperty()
+
     def __init__(self, *args, **kwargs):
         super(MainForm, self).__init__(*args, **kwargs)
 
-        self.start_date = None
-        self.start_time = None
-        self.end_date = None
-        self.end_time = None
 
         Clock.schedule_once(self.init_ui, 0)
     
     def init_ui(self, dt=0):
         self.ids.choice_wheel.bind(task = self.on_task_changed)
         self.ids.current_task.text = f"Current task: {str(active_task)}"
+
+    def on_start_date(self, instance, value: datetime.date):
+        if value:
+            self.change_time_input(self.ids.start_time, value, self.start_time)
+
+    def on_start_time(self, instance, value: datetime.time):
+        if value:
+            self.change_time_input(self.ids.start_time, self.start_date, value)
+
+    def on_end_date(self, instance, value: datetime.date):
+        if value:
+            self.change_time_input(self.ids.end_time, value, self.end_time)
+
+    def on_end_time(self, instance, value: datetime.time):
+        if value:
+            self.change_time_input(self.ids.end_time, self.end_date, value)
+
+    def change_time_input(self, input_widget, date, time):
+        if date:
+            if date.year != datetime.date.today().year:
+                input_widget.text = f"{time.strftime(config.TIME_FORMAT) + ' ' if time else ''}{date.strftime(config.LONG_DATE_FORMAT)}"
+            else:
+                input_widget.text = f"{time.strftime(config.TIME_FORMAT) + ' ' if time else ''}{date.strftime(config.SHORT_DATE_FORMAT)}"
 
     def create_new_task(self):
         task_name_edit = self.ids.choice_wheel.ids.task_name
@@ -192,17 +216,15 @@ class MainForm(Widget):
                 widget.disabled = False
             self.start_date = end_time.date()
             self.start_time = end_time.time()
-            self.ids.start_time.text = f"{str(self.start_date)} {str(self.start_time)}"
 
     def generate_plot(self):
         tasks = session.query(m.Task).all()
         
-        #TODO separate thread?
+        #TODO separate thread
         import plotter
         plotter.generate_basic_plot(tasks)
 
     def get_date(self, date):
-        self.grabbed_text_edit.text = str(date)
         if self.grabbed_text_edit == self.ids.start_time:
             self.start_date = date
         else:
@@ -212,7 +234,6 @@ class MainForm(Widget):
         time_dialog.open()
 
     def get_time(self, instance, time):
-        self.grabbed_text_edit.text += " " + str(time)
         if self.grabbed_text_edit == self.ids.start_time:
             self.start_time = time
         else:
