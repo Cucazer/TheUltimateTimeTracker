@@ -1,5 +1,20 @@
 #:kivy 1.0.9
 
+<ChoiceButton>
+    #r_size: [root.size[0]/2, root.size[1]/2]
+    canvas.before:
+        Color:
+            rgb: 0, 1, 0
+        Ellipse:
+            angle_start: root.get_start_angle()
+            angle_end: root.get_end_angle()
+            size: root.size
+            #pos: 0, root.size[1]-root.r_size[1s]
+            pos: self.pos
+
+    text: "test"
+    color: 0, 0, 0
+
 <ChoiceWheel>:
     GridLayout:
         size: root.size # set the size manually
@@ -7,17 +22,19 @@
         cols: 3
         rows: 5
         Label:
-        MDRaisedButton:
+        ChoiceButton:
             on_release: root.on_button_click(self)
             id: button0
             text: "C1/T1"
+            i: 0
         Label:
-        MDRaisedButton:
+        ChoiceButton:
             on_release: root.on_button_click(self)
             id: button1
             text: "C2/T2"
+            i: 5
         Label:
-        MDRaisedButton:
+        ChoiceButton:
             on_release: root.on_button_click(self)
             id: button2
             text: "C3/T3"
@@ -50,6 +67,7 @@
         size: root.size # set the size manually
         cols: 3
         rows: 2
+        spacing: (10, 10)
         BoxLayout:
             size_hint: (1, None)
             height: 100
@@ -73,6 +91,7 @@
             cols: 1
             rows: 4
             height: self.minimum_height
+            spacing: (0, 10)
             #orientation: "vertical"
             #adaptive_height: True
 
@@ -83,26 +102,30 @@
                 text: "Create time entry:"
             MDBoxLayout:
                 orientation: "horizontal"
-                height: 50
+                height: 30
                 size_hint: (1, None)
 
                 MDLabel:
                     text: "Start time:"
-                MDTextField:
+                MDTextFieldRect:
                     id: start_time
                     mode: "rectangle"
                     on_touch_up:root.show_date_picker(args[1])
+                    width:140
             MDBoxLayout:
                 orientation: "horizontal"
-                height: 50
+                height: 30
                 size_hint: (1, None)
 
                 MDLabel:
                     text: "End time:"
-                MDTextField:
+                MDTextFieldRect:
                     id: end_time
                     mode: "rectangle"
                     on_touch_up:root.show_date_picker(args[1])
+                    width:150
+                    height: 30
+                    size_hint: (1,1)
             MDRaisedButton:
                 id: select_task
                 disabled: True

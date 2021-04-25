@@ -3,8 +3,10 @@ import os
 
 from kivy.app import App
 from kivy.uix.widget import Widget
+from kivy.uix.behaviors import ButtonBehavior
+from kivy.uix.label import Label
 from kivy.clock import Clock
-from kivy.properties import ObjectProperty
+from kivy.properties import ObjectProperty, NumericProperty
 
 from kivymd.app import MDApp
 #from kivymd.uix.datatables import MDDataTable
@@ -34,6 +36,17 @@ try:
 except:
     active_task = "none"
 
+class ChoiceButton(ButtonBehavior, Label):
+    i = NumericProperty()
+
+    def __init__(self, *args, **kwargs):
+        super(ChoiceButton, self).__init__(*args, **kwargs)
+
+    def get_start_angle(self):
+        return self.i * 60 - 30
+
+    def get_end_angle(self):
+        return self.i * 60 + 30
 
 class ChoiceWheel(Widget):
     category = ObjectProperty()
