@@ -41,12 +41,11 @@ class ChoiceButton(ButtonBehavior, Label):
 
     def __init__(self, *args, **kwargs):
         super(ChoiceButton, self).__init__(*args, **kwargs)
-
-    def get_start_angle(self):
-        return self.i * 60 - 30
-
-    def get_end_angle(self):
-        return self.i * 60 + 30
+        Clock.schedule_once(self.init_ui, 0)
+    
+    def init_ui(self, dt=0):
+        pass
+        #print(self.canvas.children)
 
 class ChoiceWheel(Widget):
     category = ObjectProperty()

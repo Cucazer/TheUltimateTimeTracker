@@ -6,10 +6,10 @@
         Color:
             rgb: 0, 1, 0
         Ellipse:
-            angle_start: root.get_start_angle()
-            angle_end: root.get_end_angle()
+            id: ellipse
+            angle_start: self.i * 60 - 30
+            angle_end: self.i * 60 + 30
             size: root.size
-            #pos: 0, root.size[1]-root.r_size[1s]
             pos: self.pos
 
     text: "test"
@@ -38,6 +38,7 @@
             on_release: root.on_button_click(self)
             id: button2
             text: "C3/T3"
+            i: 1
         Label:
         MDTextField:
             mode: "rectangle"
@@ -46,20 +47,23 @@
             multiline: False
             disabled: True
         Label:
-        MDRaisedButton:
+        ChoiceButton:
             on_release: root.on_button_click(self)
             id: button3
             text: "C4/T4"
+            i: 4
         Label:
-        MDRaisedButton:
+        ChoiceButton:
             on_release: root.on_button_click(self)
             id: button4
             text: "C5/T5"
+            i: 2
         Label:
-        MDRaisedButton:
+        ChoiceButton:
             on_release: root.on_more_button_click()
             id: more
             text: "More"
+            i:3
         Label:
 
 <MainForm>:
