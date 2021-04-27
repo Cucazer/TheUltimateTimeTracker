@@ -38,6 +38,8 @@ except:
 
 class ChoiceButton(ButtonBehavior, Label):
     i = NumericProperty()
+    root_pos_x = NumericProperty()
+    root_pos_y = NumericProperty()
 
     def __init__(self, *args, **kwargs):
         super(ChoiceButton, self).__init__(*args, **kwargs)
@@ -161,8 +163,6 @@ class MainForm(Widget):
 
     def __init__(self, *args, **kwargs):
         super(MainForm, self).__init__(*args, **kwargs)
-
-
         Clock.schedule_once(self.init_ui, 0)
     
     def init_ui(self, dt=0):

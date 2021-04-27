@@ -1,16 +1,15 @@
 #:kivy 1.0.9
 
 <ChoiceButton>
-    #r_size: [root.size[0]/2, root.size[1]/2]
     canvas.before:
         Color:
             rgb: 0, 1, 0
         Ellipse:
             id: ellipse
-            angle_start: self.i * 60 - 30
-            angle_end: self.i * 60 + 30
+            angle_start: self.i * 60 - 25
+            angle_end: self.i * 60 + 25
             size: root.size[0] * 2, root.size[1] * 2
-            pos: self.pos
+            pos: self.root_pos_x, self.root_pos_y
         Line:
             width: 1.1
             rectangle: self.x, self.y, self.width, self.height
@@ -19,49 +18,71 @@
     color: 0, 0, 0
 
 <ChoiceWheel>:
-    GridLayout:
+    FloatLayout:
         size: root.size # set the size manually
         pos: root.pos
-        cols: 3
-        rows: 3
         ChoiceButton:
+            size_hint: .5, .5
+            pos_hint: {'x': 0, 'y': .5}
             on_release: root.on_button_click(self)
             id: button1
             text: "C2/T2"
             i: 5
+            root_pos_x: root.pos[0]
+            root_pos_y: root.pos[1]
         ChoiceButton:
+            size_hint: .5, .5
+            pos_hint: {'x': .25, 'y': .5}
             on_release: root.on_button_click(self)
             id: button0
             text: "C1/T1"
             i: 0
+            root_pos_x: root.pos[0]
+            root_pos_y: root.pos[1]
         ChoiceButton:
+            size_hint: .5, .5
+            pos_hint: {'x': .5, 'y': .5}
             on_release: root.on_button_click(self)
             id: button2
             text: "C3/T3"
             i: 1
-        Label:
+            root_pos_x: root.pos[0]
+            root_pos_y: root.pos[1]
         MDTextField:
             mode: "rectangle"
             on_text_validate: root.on_input_submit(self)
             id: task_name
             multiline: False
             disabled: True
-        Label:
+            pos_hint: {'x': .35, 'y': .45}
+            size_hint: .3, .1
         ChoiceButton:
+            size_hint: .5, .5
+            pos_hint: {'x': 0, 'y': 0}
             on_release: root.on_button_click(self)
             id: button3
             text: "C4/T4"
             i: 4
+            root_pos_x: root.pos[0]
+            root_pos_y: root.pos[1]
         ChoiceButton:
+            size_hint: .5, .5
+            pos_hint: {'x': .25, 'y': 0}
             on_release: root.on_more_button_click()
             id: more
             text: "More"
             i:3
+            root_pos_x: root.pos[0]
+            root_pos_y: root.pos[1]
         ChoiceButton:
+            size_hint: .5, .5
+            pos_hint: {'x': .5, 'y': 0}
             on_release: root.on_button_click(self)
             id: button4
             text: "C5/T5"
             i: 2
+            root_pos_x: root.pos[0]
+            root_pos_y: root.pos[1]
 
 <MainForm>:
     GridLayout:
