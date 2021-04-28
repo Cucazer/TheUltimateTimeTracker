@@ -19,7 +19,7 @@
 
 <ChoiceWheel>:
     FloatLayout:
-        size: root.size # set the size manually
+        size: min(root.size[0], root.size[1]), min(root.size[0], root.size[1]) # set the size manually
         pos: root.pos
         ChoiceButton:
             size_hint: .5, .5
