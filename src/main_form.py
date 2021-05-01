@@ -1,5 +1,7 @@
 import sys
 import os
+import datetime
+from enum import Enum, auto
 
 from kivy.app import App
 from kivy.uix.widget import Widget
@@ -13,26 +15,14 @@ from kivymd.app import MDApp
 from kivymd.uix.picker import MDDatePicker, MDTimePicker
 from kivymd.uix.snackbar import Snackbar
 
-import datetime
-
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from enum import Enum, auto
-
-import models as m
-
 import config
+import models as m
+from db_connection import DbConnection, Item
 
-db_file_path = os.path.join(config.ROOT_DIR, "testdata", "example.db")
-if len(sys.argv) > 1:
-    db_file_path = sys.argv[1]
-engine = create_engine(f"sqlite:///{db_file_path}", echo=True)
-m.Base.metadata.create_all(engine)
-Session = sessionmaker(bind=engine)
-session = Session()
+db_connection = DbConnection()
 
 try:
-    active_task = session.query(m.TimeEntry).filter(m.TimeEntry.end_time == None).one().task
+    active_task = db_connection.get(Item.ActiveTask)
 except:
     active_task = "none"
 
@@ -70,7 +60,7 @@ class ChoiceWheel(Widget):
         self.choice_buttons = [self.ids.button0, self.ids.button1, self.ids.button2, self.ids.button3, self.ids.button4]
         self.mode = self.Mode.Switch
         self.items = self.ItemType.Categories
-        self.update_choice_buttons(session.query(m.Category).all())
+        self.update_choice_buttons(db_connection.get(Item.Category))
 
     def update_choice_buttons(self, names, disable = False, page = 0):
         self.button_names = names
@@ -106,7 +96,7 @@ class ChoiceWheel(Widget):
 
     def on_button_click(self, button):
         if self.items == self.ItemType.Categories:
-            self.category = session.query(m.Category).filter(m.Category.name == button.text.replace("\n", " ")).first()
+            self.category = db_connection.get(Item.Category, button.text.replace("\n", " "))
 
             self.items = self.ItemType.Tasks
             self.update_choice_buttons(self.category.tasks, self.mode == self.Mode.Create)
@@ -116,7 +106,7 @@ class ChoiceWheel(Widget):
         elif self.items == self.ItemType.Tasks:
             self.task = next(x for x in self.category.tasks if x.name == button.text.replace("\n", " "))
             
-            self.update_choice_buttons(session.query(m.Category).all())
+            self.update_choice_buttons(db_connection.get(Item.Category))
             self.items = self.ItemType.Categories
             self.mode = self.Mode.Switch
             self.update_task_edit()
@@ -137,10 +127,9 @@ class ChoiceWheel(Widget):
         elif self.items == self.ItemType.Tasks:
             self.task = m.Task(name=input.text)
             self.category.tasks.append(self.task)
-            session.add(self.category)
-            session.commit()
+            db_connection.add(self.category)
 
-            self.update_choice_buttons(session.query(m.Category).all())
+            self.update_choice_buttons(db_connection.get(Item.Category))
             self.items = self.ItemType.Categories
             self.mode = self.Mode.Switch
             self.update_task_edit()
@@ -202,7 +191,7 @@ class MainForm(Widget):
         cw = self.ids.choice_wheel
         cw.mode = cw.Mode.Create
         cw.items = cw.ItemType.Categories
-        cw.update_choice_buttons(session.query(m.Category).all())
+        cw.update_choice_buttons(db_connection.get(Item.Category))
 
     def on_task_changed(self, instance, task):
         if self.ids.choice_wheel.mode == self.ids.choice_wheel.Mode.Switch:
@@ -211,17 +200,15 @@ class MainForm(Widget):
 
             # create time entry
             try:
-                unfinished_time_entry = session.query(m.TimeEntry).filter(m.TimeEntry.end_time == None).one()
+                unfinished_time_entry = db_connection.get(Item.UnfinishedTimeEntry)
                 unfinished_time_entry.end_time = datetime.datetime.now()
             except:
                 pass
-            session.add(m.TimeEntry(task = task, start_time = datetime.datetime.now()))   
-            session.commit()
+            db_connection.add(m.TimeEntry(task = task, start_time = datetime.datetime.now()))   
         elif self.ids.choice_wheel.mode == self.ids.choice_wheel.Mode.Select:
             start_time = datetime.datetime.combine(self.start_date, self.start_time)
             end_time = datetime.datetime.combine(self.end_date, self.end_time)
-            session.add(m.TimeEntry(task = task, start_time = start_time, end_time = end_time))   
-            session.commit()
+            db_connection.add(m.TimeEntry(task = task, start_time = start_time, end_time = end_time))   
             #TODO increase duration?
             Snackbar(text=f"Activity {task.name} ({task.category.name}) from {start_time} to {end_time} successfully recorded!").show() # change to open() after update
             for widget in [self.ids.start_time, self.ids.end_time]:
@@ -230,7 +217,7 @@ class MainForm(Widget):
             self.start_time = end_time.time()
 
     def generate_plot(self):
-        tasks = session.query(m.Task).all()
+        tasks = db_connection.get(Item.Task)
         
         #TODO separate thread
         import plotter
@@ -267,7 +254,7 @@ class MainForm(Widget):
         cw = self.ids.choice_wheel
         cw.mode = cw.Mode.Select
         cw.items = cw.ItemType.Categories
-        cw.update_choice_buttons(session.query(m.Category).all())
+        cw.update_choice_buttons(db_connection.get(Item.Category))
         for widget in [self.ids.start_time, self.ids.end_time, self.ids.select_task]:
             widget.disabled = True
 
