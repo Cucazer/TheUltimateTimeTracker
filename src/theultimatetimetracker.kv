@@ -1,4 +1,5 @@
 #:kivy 1.0.9
+#:import math math
 
 <ChoiceButton>
     canvas.before:
@@ -6,15 +7,20 @@
             rgb: 0, 1, 0
         Ellipse:
             id: ellipse
-            angle_start: self.i * 60 - 25
-            angle_end: self.i * 60 + 25
+            angle_start: self.i * 60 - 29
+            angle_end: self.i * 60 + 29
             size: root.size[0] * 2, root.size[1] * 2
             pos: self.root_pos_x, self.root_pos_y
+        Color:
+            rgb: 0, 0, 1
         Line:
             width: 1.1
-            rectangle: self.x, self.y, self.width, self.height
+            #points: [self.root_pos_x + root.size[0] / 2, self.root_pos_y + root.size[1] / 2, 200, 100, 100, 200]
+            points: [self.root_pos_x + root.size[0], self.root_pos_y + root.size[1], self.root_pos_x + root.size[0] * (1 + math.cos(math.radians(60 * self.i))), self.root_pos_y + root.size[1] * (1 + math.sin(math.radians(60 * self.i)))]
 
-    text: "test"
+    #halign: "left"
+    #valign: "bottom"
+    #text_size: self.size[0] / 2, self.size[1] * 0.6
     color: 0, 0, 0
 
 <ChoiceWheel>:
@@ -24,8 +30,7 @@
         ChoiceButton:
             size_hint: .5, .5
             pos_hint: {'x': 0, 'y': .5}
-            on_release: root.on_button_click(self)
-            id: button1
+            id: button5
             text: "C2/T2"
             i: 5
             root_pos_x: root.pos[0]
@@ -33,7 +38,6 @@
         ChoiceButton:
             size_hint: .5, .5
             pos_hint: {'x': .25, 'y': .5}
-            on_release: root.on_button_click(self)
             id: button0
             text: "C1/T1"
             i: 0
@@ -42,8 +46,7 @@
         ChoiceButton:
             size_hint: .5, .5
             pos_hint: {'x': .5, 'y': .5}
-            on_release: root.on_button_click(self)
-            id: button2
+            id: button1
             text: "C3/T3"
             i: 1
             root_pos_x: root.pos[0]
@@ -51,8 +54,7 @@
         ChoiceButton:
             size_hint: .5, .5
             pos_hint: {'x': 0, 'y': 0}
-            on_release: root.on_button_click(self)
-            id: button3
+            id: button4
             text: "C4/T4"
             i: 4
             root_pos_x: root.pos[0]
@@ -60,7 +62,6 @@
         ChoiceButton:
             size_hint: .5, .5
             pos_hint: {'x': .25, 'y': 0}
-            on_release: root.on_more_button_click()
             id: more
             text: "More"
             i:3
@@ -69,8 +70,7 @@
         ChoiceButton:
             size_hint: .5, .5
             pos_hint: {'x': .5, 'y': 0}
-            on_release: root.on_button_click(self)
-            id: button4
+            id: button2
             text: "C5/T5"
             i: 2
             root_pos_x: root.pos[0]

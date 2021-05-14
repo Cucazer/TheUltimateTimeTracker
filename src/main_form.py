@@ -1,6 +1,8 @@
 import sys
 import os
 import datetime
+import math
+import cmath
 from enum import Enum, auto
 
 from kivy.app import App
@@ -34,10 +36,9 @@ class ChoiceButton(ButtonBehavior, Label):
     def __init__(self, *args, **kwargs):
         super(ChoiceButton, self).__init__(*args, **kwargs)
         Clock.schedule_once(self.init_ui, 0)
-    
+
     def init_ui(self, dt=0):
         pass
-        #print(self.canvas.children)
 
 class ChoiceWheel(Widget):
     category = ObjectProperty()
@@ -55,9 +56,10 @@ class ChoiceWheel(Widget):
     def __init__(self, *args, **kwargs):
         super(ChoiceWheel, self).__init__(*args, **kwargs)
         Clock.schedule_once(self.init_ui, 0)
-    
+
     def init_ui(self, dt=0):
-        self.choice_buttons = [self.ids.button0, self.ids.button1, self.ids.button2, self.ids.button3, self.ids.button4]
+        self.choice_buttons = [self.ids.button0, self.ids.button5, self.ids.button1, self.ids.button4, self.ids.button2]
+        self.buttons = [self.ids.button0, self.ids.button1, self.ids.button2, self.ids.more, self.ids.button4, self.ids.button5]
         self.mode = self.Mode.Switch
         self.items = self.ItemType.Categories
         self.update_choice_buttons(db_connection.get(Item.Category))
@@ -94,7 +96,25 @@ class ChoiceWheel(Widget):
             task_name_edit.disabled = True
             task_name_edit.text = ""
 
-    def on_button_click(self, button):
+    def on_touch_down(self, touch):
+        local_pos = self.to_local(*touch.pos, True)
+        pos = complex(local_pos[0] - self.size[0] / 2, local_pos[1] - self.size[1] / 2)
+        r, phi = cmath.polar(pos)
+        if r > self.size[0] / 2:
+            # outside circle
+            return
+        #print(f"Local coordinates: {local_pos}, pos: {pos}, polar: {cmath.polar(pos)}")
+        converted_deg = (-math.degrees(phi) + 90 + 360) % 360
+        self.touched_button_index = int((converted_deg + 30) // 60 % 6)
+        #print(f"Converted degrees {converted_deg}, index: {self.touched_button_index}")
+
+    def on_touch_up(self, touch):
+        if self.touched_button_index == 3:
+            self.on_more_button_click()
+            return
+
+        button = self.buttons[self.touched_button_index]
+
         if self.items == self.ItemType.Categories:
             self.category = db_connection.get(Item.Category, button.text.replace("\n", " "))
 
