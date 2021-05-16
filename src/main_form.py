@@ -40,6 +40,11 @@ class ChoiceButton(ButtonBehavior, Label):
     def init_ui(self, dt=0):
         pass
 
+class Separator(Widget):
+    i = NumericProperty()
+    root_pos_x = NumericProperty()
+    root_pos_y = NumericProperty()
+
 class ChoiceWheel(Widget):
     category = ObjectProperty()
     task = ObjectProperty()

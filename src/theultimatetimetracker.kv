@@ -4,24 +4,28 @@
 <ChoiceButton>
     canvas.before:
         Color:
-            rgb: 0, 1, 0
+            rgb: app.theme_cls.primary_color
         Ellipse:
             id: ellipse
-            angle_start: self.i * 60 - 29
-            angle_end: self.i * 60 + 29
+            angle_start: self.i * 60 - 30
+            angle_end: self.i * 60 + 30
             size: root.size[0] * 2, root.size[1] * 2
             pos: self.root_pos_x, self.root_pos_y
-        Color:
-            rgb: 0, 0, 1
-        Line:
-            width: 1.1
-            #points: [self.root_pos_x + root.size[0] / 2, self.root_pos_y + root.size[1] / 2, 200, 100, 100, 200]
-            points: [self.root_pos_x + root.size[0], self.root_pos_y + root.size[1], self.root_pos_x + root.size[0] * (1 + math.cos(math.radians(60 * self.i))), self.root_pos_y + root.size[1] * (1 + math.sin(math.radians(60 * self.i)))]
 
     #halign: "left"
     #valign: "bottom"
     #text_size: self.size[0] / 2, self.size[1] * 0.6
-    color: 0, 0, 0
+    color: app.theme_cls.opposite_text_color
+
+<Separator>
+    canvas:
+        Color:
+            rgb: app.theme_cls.bg_normal
+        Line:
+            width: 1.1
+            #points: [self.root_pos_x + root.size[0] / 2, self.root_pos_y + root.size[1] / 2, 200, 100, 100, 200]
+            points: [self.root_pos_x + self.size[0] * 0.5 * (1 + math.cos(math.radians(60 * self.i))), self.root_pos_y + self.size[1] * 0.5 * (1 + math.sin(math.radians(60 * self.i))), self.root_pos_x + self.size[0] * 0.5 * (1 + math.cos(math.radians(60 * self.i + 180))), self.root_pos_y + self.size[1] * 0.5 * (1 + math.sin(math.radians(60 * self.i + 180)))]
+
 
 <ChoiceWheel>:
     FloatLayout:
@@ -75,8 +79,19 @@
             i: 2
             root_pos_x: root.pos[0]
             root_pos_y: root.pos[1]
-        MDTextField:
-            mode: "rectangle"
+        Separator:
+            i: 0
+            root_pos_x: root.pos[0]
+            root_pos_y: root.pos[1]
+        Separator:
+            i: 1
+            root_pos_x: root.pos[0]
+            root_pos_y: root.pos[1]
+        Separator:
+            i: 2
+            root_pos_x: root.pos[0]
+            root_pos_y: root.pos[1]
+        MDTextFieldRect:
             on_text_validate: root.on_input_submit(self)
             id: task_name
             multiline: False
