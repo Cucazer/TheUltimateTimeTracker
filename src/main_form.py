@@ -62,6 +62,8 @@ class ChoiceWheel(Widget):
         super(ChoiceWheel, self).__init__(*args, **kwargs)
         Clock.schedule_once(self.init_ui, 0)
 
+        self.touched_button_index = None
+
     def init_ui(self, dt=0):
         self.choice_buttons = [self.ids.button0, self.ids.button5, self.ids.button1, self.ids.button4, self.ids.button2]
         self.buttons = [self.ids.button0, self.ids.button1, self.ids.button2, self.ids.more, self.ids.button4, self.ids.button5]
@@ -114,11 +116,20 @@ class ChoiceWheel(Widget):
         #print(f"Converted degrees {converted_deg}, index: {self.touched_button_index}")
 
     def on_touch_up(self, touch):
+        if self.touched_button_index is None:
+            # touched outside any button
+            return
+
         if self.touched_button_index == 3:
             self.on_more_button_click()
+            self.touched_button_index = None
             return
 
         button = self.buttons[self.touched_button_index]
+
+        if button.disabled:
+            self.touched_button_index = None
+            return
 
         if self.items == self.ItemType.Categories:
             self.category = db_connection.get(Item.Category, button.text.replace("\n", " "))
@@ -139,6 +150,8 @@ class ChoiceWheel(Widget):
             print(f"Category {self.category.name} and task {self.task.name} chosen!")
         else:
             pass
+
+        self.touched_button_index = None
 
     def on_input_submit(self, input):
         if self.items == self.ItemType.Categories:
