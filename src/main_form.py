@@ -116,6 +116,7 @@ class ChoiceWheel(Widget):
         #print(f"Converted degrees {converted_deg}, index: {self.touched_button_index}")
 
     def on_touch_up(self, touch):
+        #TODO bug with touchpad: check, whether the same button was touched down and up/disable moving
         if self.touched_button_index is None:
             # touched outside any button
             return
