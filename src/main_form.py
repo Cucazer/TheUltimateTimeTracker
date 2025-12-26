@@ -14,7 +14,7 @@ from kivy.properties import ObjectProperty, NumericProperty
 
 from kivymd.app import MDApp
 #from kivymd.uix.datatables import MDDataTable
-from kivymd.uix.picker import MDDatePicker, MDTimePicker
+from kivymd.uix.pickers import MDDatePicker, MDTimePicker
 from kivymd.uix.snackbar import Snackbar
 
 import config
